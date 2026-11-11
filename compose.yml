@@ -1,84 +1,44 @@
 services:
 
-  nsraiz:
-    build: dnsserver
-    hostname: raiz    
+  mandalorian:
+    build: docker/dnsserver
+    hostname: mandalorian
     networks:
-      rededns:
-        ipv4_address: 192.168.20.8
+      - ipv4_address: 192.168.20.9
     volumes:
-      - ./raiz/named.conf.options:/etc/bind/named.conf.options
-      - ./raiz/named.conf.local:/etc/bind/named.conf.local
-      - ./raiz/db.raiz:/etc/bind/db.raiz
+      - ./mandalorian/named.conf.options:/etc/bind/named.conf.options
 
-  nslan:
-    build: dnsserver
-    hostname: nslan   
-    volumes:
-      - ./lan/named.conf.options:/etc/bind/named.conf.options
-      - ./lan/named.conf.local:/etc/bind/named.conf.local
-      - ./lan/db.lan:/etc/bind/db.lan
-      - ./dnsserver/root.hints:/usr/share/dns/root.hints
-    networks:
-      rededns:
-        ipv4_address: 192.168.20.9
   darthvader:
-    build: dnsserver
+    build: docker/dnsserver
     hostname: darthvader
-    command: -g -4
-    volumes:
-      - ./darthvader/named.conf.options:/etc/bind/named.conf.options
-      - ./darthvader/named.conf.local:/etc/bind/named.conf.local
-      - ./darthvader/zonas:/var/cache/bind
-      - ./dnsserver/root.hints:/usr/share/dns/root.hints
-      - ./logs:/logs
+    command: [ "-f", "-4" ]
     networks:
       rededns:
         ipv4_address: 192.168.20.10
-
-  darthsidious:
-    build: dnsserver
-    hostname: darthsidious
-    depends_on:
-      - darthvader
     volumes:
-      - ./darthsidious/named.conf.options:/etc/bind/named.conf.options
-      - ./darthsidious/named.conf.local:/etc/bind/named.conf.local
-      - ./dnsserver/root.hints:/usr/share/dns/root.hints      
-    networks:
-      rededns:
-        ipv4_address: 192.168.20.11        
-  delegado:
-    build: dnsserver
-    hostname: delegado
-    depends_on:
-      - darthvader    
-    volumes:
-      - ./delegado/named.conf.options:/etc/bind/named.conf.options
-      - ./delegado/named.conf.local:/etc/bind/named.conf.local
-      - ./delegado/db.imperio.starwars.lan:/etc/bind/db.imperio.starwars.lan
+      - ./darthvader/named.conf.options:/etc/bind/named.conf.options
+      - ./darthvader/named.conf.local:/etc/bind/named.conf.local
+      - ./darthvader/zonas:/var/cache/bind/zonas
       - ./dnsserver/root.hints:/usr/share/dns/root.hints
-    networks:
-      rededns:
-        ipv4_address: 192.168.20.50        
+      - ./logs:/logs
   cliente:
-    build: cliente
-    hostname: cliente1
+    build: docker/cliente
+    hostname: cliente
     networks:
       rededns:
         ipv4_address: 192.168.20.110
+    dns:
+      - 192.168.20.10
+    dns_search: starwars.lan
+    dns_opt:
+      - ndots:1
     volumes:
       - ./cliente/rndc.conf:/etc/bind/rndc.conf
-      - ./cliente/chave.key:/etc/bind/chave.key
-      - ./cliente/actualiza.txt:/etc/bind/actualiza.txt
-    dns: 
-    - 192.168.20.10
-    - 192.168.20.11
+      - ./cliente/chave.key:/dns/chave.key
+      - ./cliente/actualiza.txt:/dns/actualiza.txt
 
 networks:
   rededns:
     ipam:
       config:
         - subnet: 192.168.20.0/24
-
-
