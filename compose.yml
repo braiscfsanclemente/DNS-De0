@@ -4,7 +4,8 @@ services:
     build: docker/dnsserver
     hostname: mandalorian
     networks:
-      - ipv4_address: 192.168.20.9
+      rededns:
+        ipv4_address: 192.168.20.9
     volumes:
       - ./mandalorian/named.conf.options:/etc/bind/named.conf.options
 
@@ -19,8 +20,7 @@ services:
       - ./darthvader/named.conf.options:/etc/bind/named.conf.options
       - ./darthvader/named.conf.local:/etc/bind/named.conf.local
       - ./darthvader/zonas:/var/cache/bind/zonas
-      - ./dnsserver/root.hints:/usr/share/dns/root.hints
-      - ./logs:/logs
+
   cliente:
     build: docker/cliente
     hostname: cliente

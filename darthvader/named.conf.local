@@ -1,0 +1,13 @@
+//
+// Do any local configuration here
+//
+
+zone "starwars.lan" {
+	type primary;
+    file "zonas/db.starwars.lan";
+};
+
+zone "20.168.192.in-addr.arpa" {
+	type primary;
+    file "zonas/db.192";
+};
